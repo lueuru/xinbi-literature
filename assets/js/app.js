@@ -1298,11 +1298,12 @@ window.imgFB = function (img) {
   function initWorksPage() {
     var grid = $("#wlibGrid");
     if (!grid) return;
-    var st = { cat: "all", sort: "new", q: "", shown: 12 };
+    var st = { cat: "all", sort: "new", q: "", judge: "", shown: 12 };
 
     function list() {
       var arr = DATA.works.filter(function (w) { return w.verified || demoMode(); });
       if (st.cat !== "all") arr = arr.filter(function (w) { return w.category === st.cat; });
+      if (st.judge) arr = arr.filter(function (w) { return (w.judge || "") === st.judge; });
       if (st.q) {
         var q = st.q.toLowerCase();
         arr = arr.filter(function (w) {
@@ -1342,6 +1343,13 @@ window.imgFB = function (img) {
       });
     });
     on("#wlibSort", "change", function () { st.sort = this.value; paint(); });
+    var jsel = $("#wlibJudge");
+    if (jsel && !jsel.options.length) {
+      var judges = [];
+      DATA.works.forEach(function (w) { if (w.verified && w.judge && judges.indexOf(w.judge) < 0) judges.push(w.judge); });
+      jsel.innerHTML = '<option value="">全部指导教师</option>' + judges.map(function (j) { return '<option value="' + esc(j) + '">' + esc(j) + "</option>"; }).join("");
+    }
+    on("#wlibJudge", "change", function () { st.judge = this.value; st.shown = 12; paint(); });
     on("#wlibSearch", "input", function () {
       var v = this.value.trim();
       clearTimeout(st._t);
