@@ -285,7 +285,8 @@ window.imgFB = function (img) {
       '<div class="wcb">' +
       '<h3 class="bc-title">' + esc(w.title) + (w.verified ? '<span class="ver-chip">已发表</span>' : "") + "</h3>" +
       '<div class="wcm">' + esc(w.grade) + (w.class_name ? esc(w.class_name) + "班 · " : " · ") +
-      '<a href="authors.html?name=' + encodeURIComponent(w.author) + '">' + esc(w.author) + "</a></div>" +
+      '<a href="authors.html?name=' + encodeURIComponent(w.author) + '">' + esc(w.author) + "</a>" +
+      (w.verified && w.judge ? ' · <span class="judge-chip" title="指导教师">师 · ' + esc(w.judge) + "</span>" : "") + "</div>" +
       '<p class="wce">' + esc(w.excerpt) + "</p>" +
       '<div class="wcs">' + metaLine +
       '<button type="button" class="like-btn' + (liked ? " liked" : "") + '" data-id="' + w.id + '" aria-label="点赞">' + icon("heart", liked) + ' <span class="n">' + (w.likes + (liked ? 1 : 0)) + "</span></button>" +
@@ -1427,6 +1428,43 @@ window.imgFB = function (img) {
     }
     var lead = $("#aboutLead");
     if (lead) lead.textContent = D.site.intro;
+    var tlist = $("#teacherList");
+    if (tlist) {
+      tlist.innerHTML = (D.site.teachers || []).map(function (t) {
+        var ini = t.name.charAt(t.name.length - 1);
+        return '<div class="teacher-card" data-teacher="' + esc(t.name) + '" role="button" tabindex="0">' +
+          '<span class="tc-ava" style="background:' + t.hue + '">' + esc(ini) + "</span>" +
+          '<div class="tc-info"><b>' + esc(t.name) + "</b><span>" + esc(t.role) + "</span></div>" +
+          '<span class="tc-more">简介 ›</span></div>';
+      }).join("");
+      var openTeacher = function (name) {
+        var t = (D.site.teachers || []).filter(function (x) { return x.name === name; })[0];
+        if (!t) return;
+        var old = document.getElementById("tModal");
+        if (old) old.parentNode.removeChild(old);
+        var m = document.createElement("div");
+        m.id = "tModal";
+        m.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px";
+        m.innerHTML = '<div style="background:var(--paper,#fff);color:var(--ink,#3a3128);max-width:480px;width:100%;max-height:80vh;overflow:auto;border-radius:14px;padding:22px 24px">' +
+          '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><span class="tc-ava" style="background:' + t.hue + '">' + esc(t.name.charAt(t.name.length - 1)) + "</span>" +
+          '<div><b style="font-size:1.05rem">' + esc(t.name) + "</b><br><span style=\"font-size:.8rem;color:var(--ink-3,#8a7f6e)\">" + esc(t.role) + "</span></div>" +
+          '<button type="button" id="tClose" style="margin-left:auto;border:0;background:none;font-size:1.4rem;cursor:pointer;color:var(--ink-3,#8a7f6e)">×</button></div>' +
+          '<p style="line-height:2;font-size:.9rem">' + esc(t.bio) + "</p>" +
+          '<p style="font-size:.72rem;color:var(--ink-3,#8a7f6e);margin-top:10px">来源：' + esc(t.src) + "</p></div>";
+        document.body.appendChild(m);
+        m.addEventListener("click", function (e) { if (e.target === m || e.target.id === "tClose") m.parentNode.removeChild(m); });
+      };
+      tlist.addEventListener("click", function (e) {
+        var c = e.target.closest("[data-teacher]");
+        if (c) openTeacher(c.getAttribute("data-teacher"));
+      });
+      tlist.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          var c = e.target.closest ? e.target.closest("[data-teacher]") : null;
+          if (c) openTeacher(c.getAttribute("data-teacher"));
+        }
+      });
+    }
     var cat = $("#catalogList");
     if (cat) {
       var kinds = [];
