@@ -260,7 +260,7 @@
       <p class="desc">颁奖典礼现场照片（编辑部提供）</p>
     </div>
   </div>
-  <div class="gallery-strip rv" id="galleryStrip"></div>
+  <div class="gallery-strip rv" id="galleryStrip" data-photo-group></div>
   <p class="photo-note" style="text-align:center;padding:0">照片由编辑部提供 · 点击查看大图 · <a href="gallery.html" style="color:var(--gold)">全部照片 →</a></p>
 </section>
 
@@ -492,6 +492,9 @@
 
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="图片查看">
   <button type="button" class="lightbox-close" aria-label="关闭">×</button>
+  <button type="button" class="lb-nav lb-prev" id="lbPrev" aria-label="上一张">‹</button>
+  <button type="button" class="lb-nav lb-next" id="lbNext" aria-label="下一张">›</button>
+  <span class="lb-count" id="lbCount"></span>
   <img src="" alt="">
   <div class="lightbox-cap"></div>
 </div>

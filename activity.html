@@ -85,7 +85,7 @@
     </div>
     <div id="actFlow"></div>
     <div class="st rv" style="margin:8px 0 18px"><span class="tag">Photos</span><h2>现场照片</h2></div>
-    <div class="photo-grid" id="actPhotos" style="padding:0;margin:0"></div>
+    <div class="photo-grid" id="actPhotos" style="padding:0;margin:0" data-photo-group></div>
     <div style="display:flex;justify-content:space-between;gap:10px;margin:30px 0 0" id="actNav"></div>
     <div style="text-align:center;margin:26px 0 60px">
       <a class="btn btn-l sm" href="gallery.html">← 返回活动现场</a>
@@ -151,6 +151,9 @@
 
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="图片查看">
   <button type="button" class="lightbox-close" aria-label="关闭">×</button>
+  <button type="button" class="lb-nav lb-prev" id="lbPrev" aria-label="上一张">‹</button>
+  <button type="button" class="lb-nav lb-next" id="lbNext" aria-label="下一张">›</button>
+  <span class="lb-count" id="lbCount"></span>
   <img src="" alt="">
   <div class="lightbox-cap"></div>
 

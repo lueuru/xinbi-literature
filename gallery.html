@@ -78,7 +78,7 @@
     <p>颁奖典礼 · 9 张现场照片（编辑部提供）</p>
   </section>
 
-  <div class="photo-grid rv" id="photoGrid"></div>
+  <div class="photo-grid rv" id="photoGrid" data-photo-group></div>
   <p class="photo-note" id="galleryNote"></p>
 
   <section class="sec" style="padding-top:0">
@@ -170,6 +170,9 @@
 
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="图片查看">
   <button type="button" class="lightbox-close" aria-label="关闭">×</button>
+  <button type="button" class="lb-nav lb-prev" id="lbPrev" aria-label="上一张">‹</button>
+  <button type="button" class="lb-nav lb-next" id="lbNext" aria-label="下一张">›</button>
+  <span class="lb-count" id="lbCount"></span>
   <img src="" alt="">
   <div class="lightbox-cap"></div>
 

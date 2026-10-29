@@ -2689,3 +2689,20 @@ body.dark mark { background: #6b5426; color: #f3e9d8; }
 .quote-card .quote-mark { font-size: 1.6rem; color: var(--gold, #b8964a); line-height: 1; display: block; }
 .quote-card p { margin: 6px 0 8px; font-size: .95rem; color: var(--ink, #3a3128); line-height: 1.8; }
 .quote-card cite { font-size: .78rem; color: var(--ink-3, #8a7f6e); font-style: normal; }
+
+.lb-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.35); background: rgba(0,0,0,.45);
+  color: #fff; font-size: 1.7rem; line-height: 1; cursor: pointer; z-index: 3;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s; user-select: none;
+}
+.lb-nav:hover { background: rgba(0,0,0,.72); }
+.lb-prev { left: 14px; }
+.lb-next { right: 14px; }
+.lb-count {
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  color: rgba(255,255,255,.85); font-size: .8rem; letter-spacing: .1em; z-index: 3;
+}
+@media (max-width: 640px) { .lb-nav { width: 38px; height: 38px; font-size: 1.4rem; } }
