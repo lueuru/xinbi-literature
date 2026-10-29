@@ -2680,3 +2680,12 @@ body.dark mark { background: #6b5426; color: #f3e9d8; }
 .rot-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 2; }
 .rot-dots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.45); cursor: pointer; transition: background .2s; }
 .rot-dots i.on { background: #fff; }
+
+.quote-card {
+  margin: 22px 0; padding: 18px 22px 14px;
+  border-left: 3px solid var(--gold, #b8964a);
+  background: rgba(184,150,74,.07); border-radius: 0 10px 10px 0;
+}
+.quote-card .quote-mark { font-size: 1.6rem; color: var(--gold, #b8964a); line-height: 1; display: block; }
+.quote-card p { margin: 6px 0 8px; font-size: .95rem; color: var(--ink, #3a3128); line-height: 1.8; }
+.quote-card cite { font-size: .78rem; color: var(--ink-3, #8a7f6e); font-style: normal; }

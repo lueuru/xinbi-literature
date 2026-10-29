@@ -936,6 +936,19 @@ window.imgFB = function (img) {
       $("#wkMeta").textContent = (w.grade ? w.grade + (w.class_name ? w.class_name + "班" : "") + " · " : "") + w.author + " · " + (D.categories[w.category] || "") + (w.created_at ? " · " + fmtDate(w.created_at) : "") + " · " + chars + " 字 · 约 " + Math.max(1, Math.round(chars / 400)) + " 分钟";
       $("#wkArt").innerHTML = coverArt(w);
       $("#wkBody").innerHTML = w.content.map(function (p) { return p ? "<p>" + esc(p) + "</p>" : "" }).join("");
+      var qs = D.site.quotes || [];
+      if (qs.length) {
+        var hsh = 0, ts = w.title || "";
+        for (var qi = 0; qi < ts.length; qi++) hsh = (hsh * 31 + ts.charCodeAt(qi)) % 100000;
+        var q = qs[hsh % qs.length];
+        var old = $("#wkQuoteCard");
+        if (old) old.parentNode.removeChild(old);
+        var qc = document.createElement("aside");
+        qc.id = "wkQuoteCard";
+        qc.className = "quote-card";
+        qc.innerHTML = "<span class='quote-mark'>「</span><p>" + esc(q.text) + "</p><cite>—— " + esc(q.from) + "</cite>";
+        $("#wkBody").parentNode.insertBefore(qc, $("#wkBody").nextSibling);
+      }
       var srcBox = $("#wkSource");
       if (srcBox) {
         if (w.verified) {
@@ -1373,16 +1386,30 @@ window.imgFB = function (img) {
     }).join("");
   }
 
-  function paintCatalog(filter) {
+  function catDecade(c) {
+    var m = ((c.where || "") + " " + (c.title || "") + " " + (c.year || "")).match(/(19[6-9]\d|20[0-2]\d)/);
+    return m ? m[1].slice(0, 3) + "0 年代" : "";
+  }
+  var catDecadeFilter = "全部";
+  function paintCatalog() {
     var cat = $("#catalogList");
     if (!cat) return;
-    var list = (D.site.catalog || []).filter(function (c) { return !filter || filter === "全部" || c.kind === filter; });
-    cat.innerHTML = list.map(function (c) {
+    var list = (D.site.catalog || []).filter(function (c) {
+      var okKind = !catFilter || catFilter === "全部" || c.kind === catFilter;
+      var dec = catDecade(c);
+      var okDec = !catDecadeFilter || catDecadeFilter === "全部" ||
+        (catDecadeFilter === "年代待补" ? !dec : dec === catDecadeFilter);
+      return okKind && okDec;
+    });
+    var empty = '<p class="ad-empty">该筛选下暂无条目。</p>';
+    cat.innerHTML = list.length ? list.map(function (c) {
+      var dec = catDecade(c);
       return "<div class='toc-row'><div><span class='t'>" + esc(c.title) + "</span>" +
-        "<span class='toc-type'>" + esc(c.kind) + "</span></div>" +
+        "<span class='toc-type'>" + esc(c.kind) + "</span>" +
+        (dec ? "<span class='toc-type'>" + esc(dec) + "</span>" : "") + "</div>" +
         "<div class='a'>" + esc(c.author) + "</div>" +
         "<div class='p' style='font-size:.72rem'>" + esc(c.where) + "</div></div>";
-    }).join("");
+    }).join("") : empty;
   }
   var catFilter = "全部";
   function initAboutPage() {
@@ -1407,15 +1434,37 @@ window.imgFB = function (img) {
           a.addEventListener("click", function (e) {
             e.preventDefault();
             catFilter = a.textContent.replace(/[0-9]/g, "").trim();
-            paintCatalog(catFilter);
+            paintCatalog();
             $$("#catChips .tag-chip").forEach(function (x) { x.classList.toggle("on", x === a); });
           });
         });
       }
-      paintCatalog(catFilter);
-      if (window.XB_CLOUD && XB_CLOUD.isReady()) {
-        loadCloudData().then(function () { paintCatalog(catFilter); });
+      var dchips = $("#decadeChips");
+      if (dchips) {
+        var decs = [];
+        (D.site.catalog || []).forEach(function (c) {
+          var d2 = catDecade(c);
+          if (d2 && decs.indexOf(d2) < 0) decs.push(d2);
+        });
+        decs.sort();
+        var md = ["全部"].concat(decs).concat(decs.length < (D.site.catalog || []).length ? ["年代待补"] : []);
+        dchips.innerHTML = '<span style="font-size:.72rem;color:var(--ink-3);margin-right:6px">年代</span>' + md.map(function (k) {
+          var n = (D.site.catalog || []).filter(function (c) {
+            var d2 = catDecade(c);
+            return k === "全部" ? true : (k === "年代待补" ? !d2 : d2 === k);
+          }).length;
+          return '<a class="tag-chip' + (k === catDecadeFilter ? " on" : "") + '" href="#">' + esc(k) + "<em>" + n + "</em></a>";
+        }).join("");
+        $$("#decadeChips .tag-chip").forEach(function (a) {
+          a.addEventListener("click", function (e) {
+            e.preventDefault();
+            catDecadeFilter = (a.childNodes[0] && a.childNodes[0].textContent || a.textContent).trim();
+            paintCatalog();
+            $$("#decadeChips .tag-chip").forEach(function (x) { x.classList.toggle("on", x === a); });
+          });
+        });
       }
+      paintCatalog();
     }
     renderIndexSections();
   }
