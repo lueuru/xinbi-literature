@@ -1525,8 +1525,22 @@ window.imgFB = function (img) {
     if (!list || !window.XB_LIBRARY) return;
     var st = { cat: "全部", q: "", shown: 20 };
 
+    function shelf() { return LS.get("shelf", []); }
+    function shelfKey(x) { return x.t + "|" + x.a; }
+
+    function hl(t) {
+      if (!st.q) return t;
+      var qe = esc(st.q).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      try { return t.replace(new RegExp("(" + qe + ")", "gi"), "<mark>$1</mark>"); }
+      catch (e) { return t; }
+    }
+
     function arr() {
       var a = XB_LIBRARY;
+      if (st.cat === "书架") {
+        var s = shelf();
+        return a.filter(function (x) { return s.indexOf(shelfKey(x)) > -1; });
+      }
       if (st.cat !== "全部") a = a.filter(function (x) { return x.k === st.cat; });
       if (st.q) {
         var q = st.q.toLowerCase();
@@ -1539,14 +1553,21 @@ window.imgFB = function (img) {
 
     function paint() {
       var a = arr();
+      var s = shelf();
       var one = function (x) {
-        return '<div class="toc-row lib-row" data-lib><div><span class="t">' + esc(x.t) + "</span>" +
-          '<span class="toc-type">' + esc(x.k) + "</span></div>" +
-          '<div class="a">' + esc(x.a || "佚名") + "</div>" +
-          '<div class="p" style="font-size:.72rem">' + esc(x.s) + "</div>" +
+        var key = shelfKey(x);
+        var ins = s.indexOf(key) > -1;
+        var prev = x.p[0] || "";
+        if (prev.length > 64) prev = prev.slice(0, 64) + "…";
+        return '<div class="toc-row lib-row" data-lib><div><span class="t">' + hl(esc(x.t)) + "</span>" +
+          '<span class="toc-type">' + esc(x.k) + "</span>" +
+          '<button type="button" class="shelf-btn' + (ins ? " on" : "") + '" data-shelf="' + esc(key) + '" aria-label="收藏到书架">' + (ins ? "★" : "☆") + "</button></div>" +
+          '<div class="a">' + hl(esc(x.a || "佚名")) + "</div>" +
+          '<div class="p" style="font-size:.72rem">' + hl(esc(x.s)) + "</div>" +
+          '<p class="lib-prev" style="font-size:.8rem;color:var(--ink-3,#8a7f6e);margin:6px 0 0">' + hl(esc(prev)) + "</p>" +
           '<div class="lib-text" hidden>' + x.p.map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") + "</div></div>";
       };
-      list.innerHTML = a.length ? a.slice(0, st.shown).map(one).join("") : '<p class="ad-empty">没有找到匹配的篇目。</p>';
+      list.innerHTML = a.length ? a.slice(0, st.shown).map(one).join("") : '<p class="ad-empty">' + (st.cat === "书架" ? "书架还是空的，点条目右上角的 ☆ 收藏进来。" : "没有找到匹配的篇目。") + "</p>";
       var c = $("#libCount");
       if (c) c.textContent = "共 " + a.length + " 篇";
       var more = $("#libMore");
@@ -1560,21 +1581,26 @@ window.imgFB = function (img) {
 
     var chips = $("#libChips");
     if (chips) {
-      var cats = ["全部"];
+      var cats = ["全部", "书架"];
       XB_LIBRARY.forEach(function (x) { if (cats.indexOf(x.k) < 0) cats.push(x.k); });
-      chips.innerHTML = cats.map(function (k) {
-        var n = k === "全部" ? XB_LIBRARY.length : XB_LIBRARY.filter(function (x) { return x.k === k; }).length;
-        return '<a class="tag-chip' + (k === st.cat ? " on" : "") + '" href="#">' + esc(k) + "<em>" + n + "</em></a>";
-      }).join("");
-      $$("#libChips .tag-chip").forEach(function (a2) {
-        a2.addEventListener("click", function (e) {
-          e.preventDefault();
-          st.cat = (a2.childNodes[0] && a2.childNodes[0].textContent || a2.textContent).replace(/\d+$/, "").trim();
-          st.shown = 20;
-          paint();
-          $$("#libChips .tag-chip").forEach(function (x) { x.classList.toggle("on", x === a2); });
+      var renderChips = function () {
+        var sf = shelf();
+        chips.innerHTML = cats.map(function (k) {
+          var n = k === "全部" ? XB_LIBRARY.length : (k === "书架" ? sf.length : XB_LIBRARY.filter(function (x) { return x.k === k; }).length);
+          return '<a class="tag-chip' + (k === st.cat ? " on" : "") + '" href="#">' + esc(k) + "<em>" + n + "</em></a>";
+        }).join("");
+        $$("#libChips .tag-chip").forEach(function (a2) {
+          a2.addEventListener("click", function (e) {
+            e.preventDefault();
+            st.cat = (a2.childNodes[0] && a2.childNodes[0].textContent || a2.textContent).replace(/\d+$/, "").trim();
+            st.shown = 20;
+            paint();
+            renderChips();
+          });
         });
-      });
+      };
+      renderChips();
+      paint._renderChips = renderChips;
     }
     on("#libSearch", "input", function () {
       var v = this.value.trim();
@@ -1582,6 +1608,19 @@ window.imgFB = function (img) {
       st._t = setTimeout(function () { st.q = v; st.shown = 20; paint(); }, 200);
     });
     list.addEventListener("click", function (e) {
+      var sb = e.target.closest("[data-shelf]");
+      if (sb) {
+        e.stopPropagation();
+        var s0 = shelf();
+        var k = sb.getAttribute("data-shelf");
+        var i0 = s0.indexOf(k);
+        if (i0 > -1) { s0.splice(i0, 1); toast("已移出书架"); }
+        else { s0.push(k); toast("已加入书架 ★"); }
+        LS.set("shelf", s0);
+        paint();
+        if (paint._renderChips) paint._renderChips();
+        return;
+      }
       var row = e.target.closest("[data-lib]");
       if (!row) return;
       var txt = row.querySelector(".lib-text");
@@ -1603,10 +1642,21 @@ window.imgFB = function (img) {
     var dl = window.XB_DAILY || [];
     if (dl.length) {
       var doy = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000) - 1;
-      var pick = dl[doy % dl.length];
-      var frag = "<a class='daily-work' href='library.html'>今日一篇 · " + esc(pick.k) + "：《" + esc(pick.t) + "》" + (pick.a ? " · " + esc(pick.a) : "") + " →</a>" +
-        "<p class='daily-q' style='font-size:.86rem'>" + esc(pick.p[0]) + "</p>";
-      daily.innerHTML += frag;
+      var cur = doy % dl.length;
+      var box = document.createElement("div");
+      box.id = "dailyLib";
+      daily.appendChild(box);
+      var paintLib = function (idx) {
+        var pk = dl[idx];
+        box.innerHTML = "<div style='display:flex;align-items:center;gap:10px'><a class='daily-work' style='flex:1' href='library.html'>" + (idx === doy % dl.length ? "今日一篇" : "") + esc(pk.k) + "：《" + esc(pk.t) + "》" + (pk.a ? " · " + esc(pk.a) : "") + " →</a>" +
+          "<button type='button' class='daily-shuffle btn btn-l sm' style='margin:0;padding:4px 10px;font-size:.75rem'>换一篇</button></div>" +
+          "<p class='daily-q' style='font-size:.86rem'>" + esc(pk.p[0]) + "</p>";
+        box.querySelector(".daily-shuffle").addEventListener("click", function () {
+          var n = Math.floor(Math.random() * dl.length);
+          paintLib(n === cur && dl.length > 1 ? (n + 1) % dl.length : n);
+        });
+      };
+      paintLib(cur);
     }
   }
 
