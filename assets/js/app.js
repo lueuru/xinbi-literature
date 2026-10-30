@@ -1440,6 +1440,11 @@ window.imgFB = function (img) {
       var openTeacher = function (name) {
         var t = (D.site.teachers || []).filter(function (x) { return x.name === name; })[0];
         if (!t) return;
+        var wks = (DATA.works || []).filter(function (w) { return w.verified && (w.judge || "") === name; }).slice(0, 8);
+        var wkHtml = wks.length
+          ? '<p style="margin:12px 0 6px;font-size:.8rem;color:var(--ink-3,#8a7f6e)">指导的站内作品：</p><ul style="margin:0;padding-left:18px;line-height:2;font-size:.88rem">' +
+            wks.map(function (w) { return '<li><a href="work.html?id=' + encodeURIComponent(w.id) + '" style="color:var(--gold,#b8964a)">《' + esc(w.title) + "》</a> · " + esc(w.author) + "</li>"; }).join("") + "</ul>"
+          : "";
         var old = document.getElementById("tModal");
         if (old) old.parentNode.removeChild(old);
         var m = document.createElement("div");
@@ -1449,7 +1454,7 @@ window.imgFB = function (img) {
           '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><span class="tc-ava" style="background:' + t.hue + '">' + esc(t.name.charAt(t.name.length - 1)) + "</span>" +
           '<div><b style="font-size:1.05rem">' + esc(t.name) + "</b><br><span style=\"font-size:.8rem;color:var(--ink-3,#8a7f6e)\">" + esc(t.role) + "</span></div>" +
           '<button type="button" id="tClose" style="margin-left:auto;border:0;background:none;font-size:1.4rem;cursor:pointer;color:var(--ink-3,#8a7f6e)">×</button></div>' +
-          '<p style="line-height:2;font-size:.9rem">' + esc(t.bio) + "</p>" +
+          '<p style="line-height:2;font-size:.9rem">' + esc(t.bio) + "</p>" + wkHtml +
           '<p style="font-size:.72rem;color:var(--ink-3,#8a7f6e);margin-top:10px">来源：' + esc(t.src) + "</p></div>";
         document.body.appendChild(m);
         m.addEventListener("click", function (e) { if (e.target === m || e.target.id === "tClose") m.parentNode.removeChild(m); });
