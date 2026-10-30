@@ -1,5 +1,5 @@
 
-var CACHE = "xinbi-basic-v74";
+var CACHE = "xinbi-basic-v75";
 var SHELL = [
   "./",
   "./index.html",
@@ -22,13 +22,18 @@ var SHELL = [
   "./tags.html",
   "./timeline.html",
   "./join.html",
+  "./library.html",
   "./assets/js/contest-real.js",
   "./assets/js/activities.js",
   "./assets/js/people.js",
   "./404.html",
   "./manifest.json",
+  "./sitemap.xml",
+  "./robots.txt",
   "./assets/css/style.css",
   "./assets/js/data.js",
+  "./assets/js/library.js",
+  "./assets/js/libdaily.js",
   "./assets/js/config.js",
   "./assets/js/app.js",
   "./assets/js/cloud.js",

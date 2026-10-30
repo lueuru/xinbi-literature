@@ -168,7 +168,7 @@ window.imgFB = function (img) {
       b.textContent = "数据来源：本地管理（后台编辑）";
       b.className = "src-badge src-managed";
     } else {
-      b.textContent = "数据来源：本地示例数据（云端未连通）";
+      b.textContent = "数据来源：本站整理数据（云端暂未连通）";
       b.className = "src-badge";
     }
   }
@@ -297,7 +297,7 @@ window.imgFB = function (img) {
   function updateDemoToggle() {
     var on = demoMode();
     $$("[data-demo-toggle]").forEach(function (b) {
-      b.textContent = on ? "← 返回真实内容" : "查看示例版式（30 篇，仅演示）";
+      b.textContent = on ? "← 返回正式内容" : "查看更多篇目（示例版式）";
     });
   }
 
@@ -581,7 +581,7 @@ window.imgFB = function (img) {
     var d = $("#userDropdown");
     if (d) d.classList.remove("show");
     $("#mTitle").textContent = "我的主页";
-    $("#mMeta").textContent = "演示账号 · 数据保存在本机浏览器";
+    $("#mMeta").textContent = "本机账号 · 数据保存在本浏览器";
     $("#mart").innerHTML = "";
     var l = likes().length, b = bookmarks().length;
     var cAll = LS.get("comments", {});
@@ -596,7 +596,7 @@ window.imgFB = function (img) {
       "<div><strong>" + l + "</strong><br><small>点赞</small></div>" +
       "<div><strong>" + b + "</strong><br><small>收藏</small></div>" +
       "<div><strong>" + c + "</strong><br><small>评论</small></div></div>" +
-      '<p class="pf-note">基础版本为本地演示：点赞、收藏、评论与投稿记录均保存在本机 localStorage，清除浏览器数据后重置。</p>';
+      '<p class="pf-note">点赞、收藏、评论与投稿记录保存在本机浏览器，清除浏览器数据后会重置。</p>';
     var cs = $("#articleModal #comments-section");
     if (cs) cs.innerHTML = "";
     var lb = $("#mLikeBtn");
@@ -708,7 +708,7 @@ window.imgFB = function (img) {
     set("#cEmail", c.email);
     set("#cPhone", c.phone);
     set("#cHours", c.hours);
-    set("#copyLine", D.site.copyright + " | 基础版本 v0.2 · 本地演示");
+    set("#copyLine", D.site.copyright);
   }
 
   function gateAgree(formSel, chkSel) {
@@ -788,19 +788,10 @@ window.imgFB = function (img) {
 
   function openQr(type) {
     var isWx = type === "wechat";
-    var seed = isWx ? 7 : 13;
-    var cells = "";
-    for (var r = 0; r < 7; r++) {
-      for (var c = 0; c < 7; c++) {
-        var corner = (r < 2 && c < 2) || (r < 2 && c > 4) || (r > 4 && c < 2);
-        var on = corner ? true : (r === 3 && c === 3) || (r * 3 + c * 5 + seed) % 3 === 0;
-        cells += '<i class="' + (on ? "b" : "") + '"></i>';
-      }
-    }
     $("#qrContent").innerHTML =
-      '<h3 class="qr-title">' + (isWx ? "关注微信公众号" : "加入QQ交流群") + "</h3>" +
-      '<div class="qr-pattern">' + cells + "</div>" +
-      '<p class="qr-desc">' + esc(isWx ? D.contact.wechat : D.contact.qq) + "</p>";
+      '<h3 class="qr-title">' + (isWx ? "微信公众号" : "QQ 交流群") + "</h3>" +
+      '<p class="qr-desc">' + esc(isWx ? D.contact.wechat : D.contact.qq) + "</p>" +
+      '<p class="qr-desc" style="margin-top:6px">入群与公众号入口待编辑部提供，可先通过「联系我们」板块的电话与邮箱联系。</p>';
     $("#qrModal").classList.add("open");
     document.body.style.overflow = "hidden";
   }
@@ -958,7 +949,7 @@ window.imgFB = function (img) {
             (w.review ? '<div class="wk-review"><b>指导教师点评</b><p>' + esc(w.review) + "</p><span>—— " + esc(w.judge || "") + (w.judgeRole ? "，" + esc(w.judgeRole) : "") + "</span></div>" : "") +
             '<p class="wk-src">来源：' + esc(w.source || "学校公开报道") + (w.tag ? " · " + esc(w.tag) : "") + "</p>";
         } else {
-          srcBox.innerHTML = '<p class="wk-src wk-demo">示例内容：本文为演示版式所用，非真实投稿，正式上线前请由编辑部替换。</p>';
+          srcBox.innerHTML = '<p class="wk-src wk-demo">版式示例，非社员真实投稿；正式篇目以编辑部发布为准。</p>';
         }
       }
       $("#wkActions").innerHTML =
@@ -1046,7 +1037,7 @@ window.imgFB = function (img) {
     renderIssueWall();
     $$(".jdl").forEach(function (b) {
       b.addEventListener("click", function (e) {
-        if (b.tagName !== "A") { e.preventDefault(); toast("演示版本：社刊 PDF 尚未接入", "err"); }
+        if (b.tagName !== "A") { e.preventDefault(); toast("社刊电子版整理中，敬请期待", "err"); }
       });
     });
     observeReveals();
@@ -1523,7 +1514,9 @@ window.imgFB = function (img) {
   function initLibraryPage() {
     var list = $("#libList");
     if (!list || !window.XB_LIBRARY) return;
-    var st = { cat: "全部", q: "", shown: 20 };
+    var st = { cat: "全部", q: new URLSearchParams(location.search).get("q") || "", shown: 20 };
+    var si = $("#libSearch");
+    if (st.q && si) si.value = st.q;
 
     function shelf() { return LS.get("shelf", []); }
     function shelfKey(x) { return x.t + "|" + x.a; }
@@ -2200,6 +2193,24 @@ window.imgFB = function (img) {
       (D.site.reading || []).forEach(function (b) {
         idx.push({ type: "书单", title: b.title, sub: b.author + " · " + b.cat + " · " + b.level, text: b.why, href: "reading.html" });
       });
+      (D.site.catalog || []).forEach(function (c) {
+        idx.push({ type: "发表目录", title: c.title || "", sub: (c.author || "") + (c.where ? " · " + c.where : ""), text: (c.kind || "") + " " + (c.year || ""), href: "about.html#catalog" });
+      });
+      (D.site.timeline || []).forEach(function (t) {
+        idx.push({ type: "大事记", title: t.title, sub: t.year || "", text: t.desc || "", href: "timeline.html" });
+      });
+      (D.site.honors || []).forEach(function (h) {
+        idx.push({ type: "荣誉", title: h.title, sub: (h.year || "") + " " + (h.org || ""), text: h.note || "", href: "index.html#honors" });
+      });
+      (D.site.schoolNews || []).forEach(function (n) {
+        idx.push({ type: "校网新闻", title: n.title, sub: n.date || "", text: "", href: "gallery.html#schoolNewsList" });
+      });
+      ((D.site.sections && D.site.sections.verified) || []).forEach(function (c) {
+        idx.push({ type: "版块", title: c.name || c.title || "", sub: "社刊版块", text: c.note || c.desc || "", href: "sections.html" });
+      });
+      (window.XB_LIBRARY || []).forEach(function (b2) {
+        idx.push({ type: "典籍", title: b2.t, sub: b2.a || "", text: b2.k || "", href: "library.html?q=" + encodeURIComponent(b2.t) });
+      });
     }
 
     function hi(text, q) {
@@ -2352,13 +2363,22 @@ window.imgFB = function (img) {
   function alt(src) { return ALT + "/" + String(src).replace(/^\//, ""); }
   function webpOf(src) { return String(src).replace(/\.jpg$/, ".webp"); }
 
-  function thumbOf(src) { return pic(src.replace("assets/photos/", "assets/photos/th/")); }
+  function thumbOf(src) {
+    var s = String(src).replace(/^.*?assets\/photos\//, "");
+    return pic("assets/photos/th/" + s.replace(/^mp\//, ""));
+  }
   function fbAttrs(src) {
-    var m = String(src).match(/([^\/]+)\.jpg$/);
+    var s = String(src);
+    var m = s.match(/([^\/]+)\.jpe?g$/i);
     if (!m) return "";
+    var full = /assets\/photos\//.test(s) ? "assets/photos/" + s.split("assets/photos/")[1] : s;
     var t = "assets/photos/th/" + m[1];
-    var full = "assets/photos/" + String(src).split("assets/photos/")[1];
-    var list = [pic(t + ".webp"), alt(t + ".webp"), alt(t + ".jpg"), pic(full), alt(full)];
+    var list;
+    if (/\/wx\//.test(full)) {
+      list = [webpOf(pic(full)), pic(full), alt(full)];
+    } else {
+      list = [pic(t + ".webp"), alt(t + ".webp"), alt(t + ".jpg"), pic(full), alt(full)];
+    }
     return ' data-fb="' + list.join("|") + '" onerror="imgFB(this)"';
   }
 
@@ -2405,7 +2425,7 @@ window.imgFB = function (img) {
         '<div class="mp-head"><b>' + esc(n.date) + "</b><span>" + esc(n.title) + "</span>" +
         '<a href="' + n.url + '" target="_blank" rel="noopener">原文 →</a></div>' +
         '<div class="mp-thumbs">' + (n.photos || []).map(function (src) {
-          return '<img src="' + src + '" alt="' + esc(n.title) + '" loading="lazy" data-photo data-cap="' + esc(n.date + " · " + n.title) + '">';
+          return '<img src="' + webpOf(thumbOf(src)) + '" alt="' + esc(n.title) + '" loading="lazy" data-photo data-cap="' + esc(n.date + " · " + n.title) + '"' + fbAttrs(src) + '>';
         }).join("") + "</div></div>";
     }).join("");
     bindLightbox();
@@ -2651,7 +2671,7 @@ window.imgFB = function (img) {
     var page = document.body.getAttribute("data-page");
     var map = { sections: "社刊版块", works: "作品库", journal: "社刊", gallery: "活动现场",
       activity: "活动档案", about: "关于我们", guide: "投稿指南", craft: "写作课",
-      reading: "书单", contest: "征文", search: "搜索", authors: "作者", work: "作品", issue: "期号", tags: "标签索引", timeline: "大事记", join: "网上招新" };
+      reading: "书单", contest: "征文", search: "搜索", authors: "作者", work: "作品", issue: "期号", tags: "标签索引", timeline: "大事记", join: "网上招新", library: "藏书阁" };
     var label = map[page];
     var main = document.getElementById("main");
     if (!label || !main || document.querySelector(".crumb")) return;
@@ -2753,6 +2773,7 @@ window.imgFB = function (img) {
     if (note) note.textContent = D.site.galleryNote || "";
     bindLightbox();
     renderMeipian();
+    renderSchoolNews();
   }
 
   function renderGalleryStrip() {
@@ -2833,7 +2854,7 @@ window.imgFB = function (img) {
             setSourceBadge();
             if (!remote) {
               var b = $("#srcBadge");
-              if (b) b.textContent = "数据来源：本地示例数据（云端未连通）";
+              if (b) b.textContent = "数据来源：本站整理数据（云端暂未连通）";
             }
           });
         });
@@ -2848,6 +2869,10 @@ window.imgFB = function (img) {
     if (page === "reading") initReadingPage();
     if (page === "library") initLibraryPage();
     if (page === "contest") initContestPage();
+    if (page === "join") {
+      bindForm("#joinForm", "#joinOk", "applications", "申请已提交，编辑部已收到，请留意联系方式", "提交申请", true);
+      gateAgree("#joinForm", "#jAgree");
+    }
     buildCrumb();
     buildTOC();
     buildMobileBar();

@@ -170,7 +170,7 @@ window.XB_CLOUD = (function () {
 
   async function submit(rec) {
     var d = db(); if (!d) return { error: { message: "云端不可用" } };
-    return await d.from("submissions").insert(rec).select();
+    return await d.from("submissions").insert(rec);
   }
 
   async function markInteraction(workId, kind, on, payload) {
