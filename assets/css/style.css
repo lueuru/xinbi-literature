@@ -2724,3 +2724,8 @@ body.dark mark { background: #6b5426; color: #f3e9d8; }
 .tc-info b { display: block; font-size: .95rem; }
 .tc-info span { display: block; font-size: .72rem; color: var(--ink-3, #8a7f6e); margin-top: 2px; }
 .tc-more { font-size: .72rem; color: var(--gold, #b8964a); flex: none; }
+
+.lib-row { cursor: pointer; }
+.lib-row:hover { background: rgba(184,150,74,.05); }
+.lib-text { margin-top: 10px; padding: 14px 16px; background: rgba(184,150,74,.06); border-radius: 10px; }
+.lib-text p { margin: 0 0 8px; line-height: 2; font-size: .92rem; }

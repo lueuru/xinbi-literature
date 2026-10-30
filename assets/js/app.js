@@ -1520,6 +1520,76 @@ window.imgFB = function (img) {
     renderIndexSections();
   }
 
+  function initLibraryPage() {
+    var list = $("#libList");
+    if (!list || !window.XB_LIBRARY) return;
+    var st = { cat: "全部", q: "", shown: 20 };
+
+    function arr() {
+      var a = XB_LIBRARY;
+      if (st.cat !== "全部") a = a.filter(function (x) { return x.k === st.cat; });
+      if (st.q) {
+        var q = st.q.toLowerCase();
+        a = a.filter(function (x) {
+          return (x.t + " " + x.a + " " + x.s + " " + x.p.join("")).toLowerCase().indexOf(q) > -1;
+        });
+      }
+      return a;
+    }
+
+    function paint() {
+      var a = arr();
+      var one = function (x) {
+        return '<div class="toc-row lib-row" data-lib><div><span class="t">' + esc(x.t) + "</span>" +
+          '<span class="toc-type">' + esc(x.k) + "</span></div>" +
+          '<div class="a">' + esc(x.a || "佚名") + "</div>" +
+          '<div class="p" style="font-size:.72rem">' + esc(x.s) + "</div>" +
+          '<div class="lib-text" hidden>' + x.p.map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") + "</div></div>";
+      };
+      list.innerHTML = a.length ? a.slice(0, st.shown).map(one).join("") : '<p class="ad-empty">没有找到匹配的篇目。</p>';
+      var c = $("#libCount");
+      if (c) c.textContent = "共 " + a.length + " 篇";
+      var more = $("#libMore");
+      if (more) {
+        if (a.length > st.shown) {
+          more.innerHTML = '<button type="button" class="btn btn-l" id="libMoreBtn">加载更多（还有 ' + (a.length - st.shown) + " 篇）</button>";
+          on("#libMoreBtn", "click", function () { st.shown += 20; paint(); });
+        } else more.innerHTML = "";
+      }
+    }
+
+    var chips = $("#libChips");
+    if (chips) {
+      var cats = ["全部"];
+      XB_LIBRARY.forEach(function (x) { if (cats.indexOf(x.k) < 0) cats.push(x.k); });
+      chips.innerHTML = cats.map(function (k) {
+        var n = k === "全部" ? XB_LIBRARY.length : XB_LIBRARY.filter(function (x) { return x.k === k; }).length;
+        return '<a class="tag-chip' + (k === st.cat ? " on" : "") + '" href="#">' + esc(k) + "<em>" + n + "</em></a>";
+      }).join("");
+      $$("#libChips .tag-chip").forEach(function (a2) {
+        a2.addEventListener("click", function (e) {
+          e.preventDefault();
+          st.cat = (a2.childNodes[0] && a2.childNodes[0].textContent || a2.textContent).replace(/\d+$/, "").trim();
+          st.shown = 20;
+          paint();
+          $$("#libChips .tag-chip").forEach(function (x) { x.classList.toggle("on", x === a2); });
+        });
+      });
+    }
+    on("#libSearch", "input", function () {
+      var v = this.value.trim();
+      clearTimeout(st._t);
+      st._t = setTimeout(function () { st.q = v; st.shown = 20; paint(); }, 200);
+    });
+    list.addEventListener("click", function (e) {
+      var row = e.target.closest("[data-lib]");
+      if (!row) return;
+      var txt = row.querySelector(".lib-text");
+      if (txt) txt.hidden = !txt.hidden;
+    });
+    paint();
+  }
+
   function renderDaily() {
     var daily = $("#dailyStrip");
     if (!daily) return;
@@ -2548,7 +2618,8 @@ window.imgFB = function (img) {
       { t: "标签索引", d: "按体裁、年份、活动、作者交叉检索", n: "40 个标签", h: "tags.html" },
       { t: "光华杯征文", d: "清明缅怀——传承的力量", n: "1027 篇 → 90 篇", h: "contest.html" },
       { t: "投稿与指南", d: "怎么投稿、格式要求、往哪里交", n: "长期征稿", h: "guide.html" },
-      { t: "加入我们", d: "网上招新：流程、条件与在线申请表", n: "常年招新", h: "join.html" }
+      { t: "加入我们", d: "网上招新：流程、条件与在线申请表", n: "常年招新", h: "join.html" },
+      { t: "藏书阁", d: "唐诗三百首、诗经、古文观止等公版典籍在线阅读", n: (window.XB_LIBRARY ? XB_LIBRARY.length : 1400) + "+ 篇", h: "library.html" }
     ];
     box.innerHTML = cards.map(function (c) {
       return '<a class="navcard" href="' + c.h + '"><b>' + esc(c.t) + "</b><span>" + esc(c.d) + "</span><em>" + esc(c.n) + "</em></a>";
@@ -2717,6 +2788,7 @@ window.imgFB = function (img) {
     if (page === "issue") initIssuePage();
     if (page === "craft") initCraftPage();
     if (page === "reading") initReadingPage();
+    if (page === "library") initLibraryPage();
     if (page === "contest") initContestPage();
     buildCrumb();
     buildTOC();
@@ -2748,7 +2820,7 @@ window.imgFB = function (img) {
       loadCloudData().then(function (cloud) { if (cloud) { renderJournal(); } });
     }
 
-    if (page === "index" || page === "work" || page === "journal" || page === "works" || page === "guide" || page === "about" || page === "authors" || page === "issue" || page === "contest" || page === "search" || page === "gallery" || page === "activity") {
+    if (page === "index" || page === "work" || page === "journal" || page === "works" || page === "guide" || page === "about" || page === "authors" || page === "issue" || page === "contest" || page === "search" || page === "gallery" || page === "activity" || page === "library") {
       var y = $("#year");
       if (y) y.textContent = new Date().getFullYear();
     }
