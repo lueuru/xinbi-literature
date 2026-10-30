@@ -1600,6 +1600,14 @@ window.imgFB = function (img) {
     var w = ws.length ? ws[seed % ws.length] : null;
     daily.innerHTML = (q ? "<span class='daily-tag'>今日诗签</span><p class='daily-q'>" + esc(q.text) + "<cite>—— " + esc(q.from) + "</cite></p>" : "") +
       (w ? "<a class='daily-work' href='work.html?id=" + w.id + "'>今日推荐：《" + esc(w.title) + "》→</a>" : "");
+    var dl = window.XB_DAILY || [];
+    if (dl.length) {
+      var doy = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000) - 1;
+      var pick = dl[doy % dl.length];
+      var frag = "<a class='daily-work' href='library.html'>今日一篇 · " + esc(pick.k) + "：《" + esc(pick.t) + "》" + (pick.a ? " · " + esc(pick.a) : "") + " →</a>" +
+        "<p class='daily-q' style='font-size:.86rem'>" + esc(pick.p[0]) + "</p>";
+      daily.innerHTML += frag;
+    }
   }
 
   var HUES = ["#8b3a3a", "#b8964a", "#5b7a6a", "#9c6b3f", "#33506b", "#6e2f2a"];

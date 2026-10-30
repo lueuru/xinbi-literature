@@ -1,5 +1,5 @@
 
-var CACHE = "xinbi-basic-v72";
+var CACHE = "xinbi-basic-v73";
 var SHELL = [
   "./",
   "./index.html",

@@ -1333,7 +1333,7 @@ window.XB_DATA = {
 
   D.officialWorks.push({
     id: "o5", verified: true, title: "打稻机的发展", author: "陈娈", grade: "", class_name: "",
-    category: "prose", tag: "散文 · 记叙", source: "岳阳县作家协会《巴陵文萃》· 优秀学生作文",
+    category: "prose", tag: "散文 · 记叙", source: "岳阳县作家协会《巴陵文萃》·「望巴陵」公众号优秀学生作文栏目（全文，供稿：方发贵）",
     judge: "方发贵", judgeRole: "指导老师",
     excerpt: "从脚踩式到电动式，再到收割机——一台打稻机的变化，装着一个村庄的三十年。",
     likes: 0, bookmarks: 0,
@@ -1524,7 +1524,7 @@ window.XB_DATA = {
   /* 新增第 7 篇真实作品：侯迎《大山的家》（《巴陵文萃》） */
   D.officialWorks.push({
     id: "o6", verified: true, title: "大山的家", author: "侯迎", grade: "", class_name: "",
-    category: "prose", tag: "散文 · 乡土", source: "岳阳县作家协会《巴陵文萃》· 优秀学生作文",
+    category: "prose", tag: "散文 · 乡土", source: "岳阳县作家协会《巴陵文萃》·「望巴陵」公众号优秀学生作文栏目（全文，供稿：方发贵）",
     judge: "方发贵", judgeRole: "指导老师",
     excerpt: "岳阳有湖，其名为洞庭。而家乡的山、新墙河的水与人家的烟火，构成了大山一样的依靠。",
     likes: 0, bookmarks: 0,
