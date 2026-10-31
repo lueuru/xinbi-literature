@@ -2527,7 +2527,11 @@ window.imgFB = function (img) {
 
   var PIC = location.hostname === "lueuru.github.io" ? "" : "https://lueuru.github.io/xinbi-literature";
   var ALT = location.hostname === "lueuru.github.io" ? "https://xinbi-literature.app.workbuddy.host" : "https://lueuru.github.io/xinbi-literature";
-  function pic(src) { return /^https?:/.test(String(src)) ? String(src) : PIC + "/" + String(src); }
+  function pic(src) {
+    var t = String(src);
+    if (/^https?:/.test(t)) return t;
+    return PIC ? PIC + "/" + t.replace(/^\//, "") : t.replace(/^\//, "");
+  }
   function alt(src) { return ALT + "/" + String(src).replace(/^\//, ""); }
   function webpOf(src) { return String(src).replace(/\.jpg$/, ".webp"); }
 
