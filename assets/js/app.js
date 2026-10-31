@@ -24,7 +24,7 @@ window.imgFB = function (img) {
 
   function issue38Works() {
     if (!window.XB_ISSUE38) return [];
-    var CAT = { "卷首语": "essay", "发展领航": "essay", "心桥飞鸿": "essay", "杏坛文韵": "essay", "剧韵留声": "fiction", "成长爱音": "essay" };
+    var CAT = { "卷首语": "essay", "发展领航": "essay", "心桥飞鸿": "essay", "杏坛文韵": "essay", "剧韵留声": "script", "成长爱音": "essay" };
     var out = [];
     (XB_ISSUE38.columns || []).forEach(function (c) {
       (c.works || []).forEach(function (w) {
@@ -939,6 +939,66 @@ window.imgFB = function (img) {
     document.head.appendChild(s);
   }
 
+  function scriptBody(w) {
+    var paras = w.content || [];
+    if (w.category !== "script") return paras.map(function (p) { return p ? "<p>" + esc(p) + "</p>" : ""; }).join("");
+    return paras.map(function (p) {
+      if (!p) return "";
+      var t = String(p).trim();
+      if (/^(第[〇零一二三四五六七八九十百0-9]+[幕场])/.test(t) || (/^[幕场]$/.test(t.slice(-1)) && t.length <= 24 && !/[，。；""]/.test(t.slice(0, -1)))) {
+        return '<p class="sc-scene">' + esc(t) + "</p>";
+      }
+      if ((/^（.+）$/.test(t) || /^\(.+\)$/.test(t) || /^【.+】$/.test(t)) && t.length <= 80) {
+        return '<p class="sc-dir">' + esc(t) + "</p>";
+      }
+      var m = t.match(/^([^：:，。！？""：]{1,14})[：:](.+)$/);
+      if (m && m[2]) return '<p class="sc-line"><b>' + esc(m[1]) + "</b>" + esc(m[2]) + "</p>";
+      return "<p>" + esc(t) + "</p>";
+    }).join("");
+  }
+
+  function loadQrLib(cb) {
+    if (window.QRCode) return cb();
+    var s = document.createElement("script");
+    s.src = "assets/vendor/qrcode.min.js";
+    s.onload = cb;
+    s.onerror = function () { toast("二维码组件加载失败", "err"); };
+    document.head.appendChild(s);
+  }
+
+  function showWorkQr(w) {
+    var url = "https://lueuru.github.io/xinbi-literature/work.html?id=" + encodeURIComponent(w.id);
+    var old = document.getElementById("wkQrModal");
+    if (old) old.parentNode.removeChild(old);
+    var m = document.createElement("div");
+    m.className = "modal open";
+    m.id = "wkQrModal";
+    m.setAttribute("role", "dialog");
+    m.setAttribute("aria-modal", "true");
+    m.innerHTML = '<div class="modal-box wkqr" style="max-width:340px">' +
+      '<button class="mclose" aria-label="关闭">&times;</button>' +
+      '<h3>扫码读这篇</h3>' +
+      '<p style="font-size:.86rem;color:var(--ink-2);margin:0 0 12px">' + esc(w.title) + " · " + esc(w.author || "佚名") + '</p>' +
+      '<div id="wkQrBox"></div>' +
+      '<p style="font-size:.72rem;color:var(--ink-3);margin:12px 0 0;word-break:break-all">' + esc(url) + "</p></div>";
+    document.body.appendChild(m);
+    document.body.style.overflow = "hidden";
+    function close() {
+      m.classList.remove("open");
+      document.body.style.overflow = "";
+      setTimeout(function () { if (m.parentNode) m.parentNode.removeChild(m); }, 200);
+    }
+    m.querySelector(".mclose").addEventListener("click", close);
+    m.addEventListener("click", function (e) { if (e.target === m) close(); });
+    loadQrLib(function () {
+      var box = document.getElementById("wkQrBox");
+      if (box && window.QRCode) {
+        box.innerHTML = "";
+        new QRCode(box, { text: url, width: 196, height: 196, colorDark: "#2c2416", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+      }
+    });
+  }
+
   function renderWorkPage() {
     var rawId = new URLSearchParams(location.search).get("id") || "";
     var id = /^\d+$/.test(rawId) ? parseInt(rawId, 10) : rawId;
@@ -965,7 +1025,7 @@ window.imgFB = function (img) {
       var chars = (w.content || []).join("").length;
       $("#wkMeta").textContent = (w.grade ? w.grade + (w.class_name ? w.class_name + "班" : "") + " · " : "") + w.author + " · " + (D.categories[w.category] || "") + (w.created_at ? " · " + fmtDate(w.created_at) : "") + " · " + chars + " 字 · 约 " + Math.max(1, Math.round(chars / 400)) + " 分钟";
       $("#wkArt").innerHTML = coverArt(w);
-      $("#wkBody").innerHTML = w.content.map(function (p) { return p ? "<p>" + esc(p) + "</p>" : "" }).join("");
+      $("#wkBody").innerHTML = scriptBody(w);
       var qs = D.site.quotes || [];
       if (qs.length) {
         var hsh = 0, ts = w.title || "";
@@ -994,8 +1054,10 @@ window.imgFB = function (img) {
         '<button type="button" class="like-btn' + (liked ? " liked" : "") + '" data-id="' + w.id + '">' + icon("heart", liked) + ' <span class="n">' + (w.likes + (liked ? 1 : 0)) + "</span> 喜欢</button>" +
         '<button type="button" class="bookmark-btn' + (bmed ? " liked" : "") + '" data-id="' + w.id + '">' + icon("bookmark", bmed) + ' <span class="n">' + (w.bookmarks + (bmed ? 1 : 0)) + "</span> 收藏</button>" +
         '<button type="button" class="share-btn" id="wkShareBtn">' + icon("share") + " 分享</button>" +
+        '<button type="button" class="share-btn" id="wkQrBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/><path d="M14 20h2M20 14v2"/></svg> 扫码分享</button>' +
         '<span class="fs-ctl" role="group" aria-label="字号"><button type="button" class="fs-btn" data-fs="s">A−</button><button type="button" class="fs-btn" data-fs="m">A</button><button type="button" class="fs-btn" data-fs="l">A+</button></span>';
       on("#wkShareBtn", "click", function () { shareWork(w); });
+      on("#wkQrBtn", "click", function () { showWorkQr(w); });
       on("#posterBtn", "click", function () { makePoster(w); });
       var ttsBtn = $("#ttsBtn");
       if (ttsBtn) ttsBtn.addEventListener("click", function () {
@@ -1439,6 +1501,20 @@ window.imgFB = function (img) {
       return "<div class='quote-card'><p>" + esc(q.text) + "</p><cite>—— " + esc(q.from) + "</cite></div>";
     }).join("");
 
+    var ib = $("#issueBanner");
+    if (ib && window.XB_ISSUE38) {
+      var isb = window.XB_ISSUE38;
+      var nAll = 0, nFull = 0;
+      (isb.columns || []).forEach(function (c) {
+        (c.works || []).forEach(function (x) { nAll++; if (x.x) nFull++; });
+      });
+      ib.innerHTML = '<a class="issue-banner" href="issue.html?no=' + isb.no + '">' +
+        '<img src="' + webpOf(pic(isb.cover)) + '" alt="第 ' + isb.no + ' 期封面" loading="lazy" onerror="this.style.display=\'none\'">' +
+        '<span class="ib-txt"><b>第 ' + isb.no + ' 期《年轻的心》已出刊</b>' +
+        '<i>' + esc(isb.term || "") + " · " + (isb.columns || []).length + " 个版块 · " + nAll + " 篇作品" + (isb.pages ? " · " + isb.pages + " 页" : "") + " · 已收录全文 " + nFull + " 篇</i>" +
+        '<em>在线阅读本期 →</em></span></a>';
+    }
+
     renderDaily();
     observeReveals();
   }
@@ -1841,11 +1917,19 @@ window.imgFB = function (img) {
       $("#authorHero").querySelector("h1").textContent = "作者名录";
       $("#authorSub").innerHTML = "为本刊写过字的人 · " + list.length + " 位作者 · " + DATA.works.length + " 篇作品";
       grid.innerHTML = list.map(function (a, i) {
-        var g = a.works[0] || {};
+        var iss = [], tgs = [];
+        a.works.forEach(function (x) {
+          if (x.issue && iss.indexOf(x.issue) < 0) iss.push(x.issue);
+          if (x.tag && tgs.indexOf(x.tag) < 0) tgs.push(x.tag);
+        });
+        var meta = [];
+        if (iss.length) meta.push("第 " + iss.map(String).sort().join("、") + " 期");
+        if (tgs.length) meta.push(tgs.length > 2 ? tgs.slice(0, 2).join("、") + " 等 " + tgs.length + " 个版块" : tgs.join("、"));
+        meta.push(a.works.length + " 篇");
         return "<a class='author-card' href='authors.html?name=" + encodeURIComponent(a.name) + "'>" +
           "<span class='avatar' style='background:" + HUES[i % HUES.length] + "'>" + esc((a.name || "?").slice(0, 1)) + "</span>" +
           "<span><span class='author-name'>" + esc(a.name) + "</span>" +
-          "<span class='author-meta'>" + esc((g.grade || "") + (g.class_name ? g.class_name + "班" : "")) + " · " + a.works.length + " 篇 · " + a.likes + " 喜欢</span></span></a>";
+          "<span class='author-meta'>" + esc(meta.join(" · ")) + "</span></span></a>";
       }).join("");
     }
 

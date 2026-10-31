@@ -2762,3 +2762,22 @@ mark { background: rgba(217,164,65,.45); color: inherit; border-radius: 2px; pad
 .i38-body{grid-column:1/-1;border-left:3px solid var(--gold,#b8964a);padding:4px 0 4px 14px;margin:6px 0 2px}
 .i38-body p{font-size:.92rem;line-height:1.95;color:var(--ink-2,#4f4739);margin:0 0 .85em;text-indent:2em}
 .i38-wait{color:var(--ink-3,#8a7f6e);font-size:.85rem;text-indent:0!important}
+
+/* v8.1: issue banner + script layout + work qr modal */
+#issueBanner{max-width:980px;margin:0 auto;padding:0 20px}
+.issue-banner{display:flex;align-items:center;gap:16px;background:linear-gradient(100deg,rgba(184,150,74,.16),rgba(139,58,58,.05));border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:12px 18px;margin:18px 0 0;color:var(--ink);text-decoration:none;box-shadow:var(--shadow-sm);transition:transform .25s,box-shadow .25s}
+.issue-banner:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.issue-banner img{width:54px;height:54px;object-fit:cover;border-radius:8px;flex:none;border:1px solid var(--line);background:var(--cream)}
+.issue-banner .ib-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.issue-banner b{font-size:.98rem;color:var(--red-deep)}
+.issue-banner i{font-style:normal;font-size:.82rem;color:var(--ink-3)}
+.issue-banner em{font-style:normal;font-size:.82rem;color:var(--gold);margin-top:2px}
+.issue-banner:hover em{text-decoration:underline}
+.sc-scene{text-align:center;font-weight:700;color:var(--red-deep);letter-spacing:.14em;margin:1.5em 0 .9em!important;text-indent:0!important}
+.sc-dir{color:var(--ink-3);font-style:italic;font-size:.9em;text-indent:0!important;margin:.6em 0}
+.sc-line{text-indent:0!important;margin:.55em 0}
+.sc-line b{color:var(--red);margin-right:.6em}
+.wkqr{padding:4px 2px;text-align:center}
+.wkqr h3{color:var(--red);margin:0 0 4px;font-size:1.05rem}
+.wkqr img,.wkqr canvas{border:1px solid var(--line);border-radius:8px;background:#fff}
+body.dark .issue-banner{background:linear-gradient(100deg,rgba(184,150,74,.14),rgba(139,58,58,.10))}
