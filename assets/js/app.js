@@ -1,3 +1,10 @@
+window.i38fb = function (img) {
+  var rel = img.getAttribute("data-rel");
+  img.onerror = null;
+  if (!rel) return;
+  if (img.src.split("?")[0].indexOf(location.origin) !== 0) img.src = rel;
+};
+
 window.imgFB = function (img) {
   var list = (img.dataset.fb || "").split("|").filter(Boolean);
   if (list.length) { img.src = list.shift(); img.dataset.fb = list.join("|"); } else { img.onerror = null; }
@@ -15,17 +22,48 @@ window.imgFB = function (img) {
 
   function demoMode() { return false; }
 
+  function issue38Works() {
+    if (!window.XB_ISSUE38) return [];
+    var CAT = { "卷首语": "essay", "发展领航": "essay", "心桥飞鸿": "essay", "杏坛文韵": "essay", "剧韵留声": "fiction", "成长爱音": "essay" };
+    var out = [];
+    (XB_ISSUE38.columns || []).forEach(function (c) {
+      (c.works || []).forEach(function (w) {
+        if (!w.x) return;
+        var paras = w.x.split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean);
+        out.push({
+          id: "i38-" + (out.length + 1),
+          title: w.t,
+          author: w.a || "佚名",
+          grade: "",
+          class_name: "",
+          category: CAT[c.name] || "prose",
+          excerpt: (paras[0] || "").slice(0, 64) + "…",
+          content: paras,
+          source: "《年轻的心》第 " + XB_ISSUE38.no + " 期 · " + c.name + " · P" + w.p,
+          tag: c.name,
+          judge: "",
+          likes: 0,
+          bookmarks: 0,
+          verified: true,
+          issue: XB_ISSUE38.no,
+          page: w.p
+        });
+      });
+    });
+    return out;
+  }
+
   function buildWorks(cloudRows) {
     if (!demoMode()) return (D.officialWorks || []).map(function (w) {
       var o = {}; Object.keys(w).forEach(function (k) { o[k] = w[k]; });
       o.verified = true;
       return o;
-    });
+    }).concat(issue38Works());
     var official = (D.officialWorks || []).map(function (w) {
       var o = {}; Object.keys(w).forEach(function (k) { o[k] = w[k]; });
       o.verified = true;
       return o;
-    });
+    }).concat(issue38Works());
     var demo;
     if (cloudRows && cloudRows.length) {
       demo = cloudRows.map(function (row) {
@@ -1018,13 +1056,131 @@ window.imgFB = function (img) {
     });
   }
 
+  function renderJournalList(box) {
+    var is = window.XB_ISSUE38;
+    var html = "";
+    if (is) {
+      var n = 0;
+      (is.columns || []).forEach(function (c) { n += (c.works || []).length; });
+      html += '<div class="jissue rv on" style="border-left:4px solid var(--gold,#b8964a)">' +
+        '<div class="jno"><span class="jno-n">总第 ' + is.no + ' 期</span><span class="jno-d">' + esc(is.term) + ' · 最新</span></div>' +
+        '<div class="jbody"><h3>《年轻的心》第 ' + is.no + ' 期</h3>' +
+        '<p style="color:var(--ink-3);font-size:.86rem;margin:0 0 10px">' + is.pages + ' 页 · 印 ' + (is.print || (is.masthead && is.masthead.copies)) + ' 册 · ' +
+        (is.columns || []).length + ' 个版块 · ' + n + ' 篇作品</p>' +
+        '<ul class="jpieces">' + (is.columns || []).map(function (c) {
+          return '<li><span class="jp-t">' + esc(c.name) + '</span><span class="jp-m">责编 ' + esc(c.editor) + '</span><span class="jp-p">' + c.works.length + ' 篇</span></li>';
+        }).join("") + "</ul>" +
+        '<a class="btn btn-l sm" href="issue.html?no=38">在线阅读本期 →</a></div></div>';
+    }
+    html += '<div class="org-item"><b>第 37 期及以前</b><span>目录与刊头待编辑部逐期提供样刊后补齐（现仅在「大事记」与「关于我们」中留有零散记载）。</span></div>';
+    box.innerHTML = html;
+  }
+
+  function renderIssue38(is) {
+    document.title = "第 " + is.no + " 期（" + is.term + "） - 新笔文学社";
+    var t = $("#issueTitle");
+    if (t) t.textContent = "第 " + is.no + " 期 · " + is.term;
+    var m = $("#issueMeta");
+    if (m) m.textContent = "《年轻的心》总第 " + is.no + " 期 · " + is.pages + " 页 · 印 " + (is.print || (is.masthead && is.masthead.copies)) + " 册 · 准印证号 " + is.masthead.license;
+
+    var sp = $("#issueSpread");
+    if (sp) {
+      sp.innerHTML = '<div class="i38-covers">' +
+        '<a class="i38-cv main" href="' + pic(is.cover) + '" data-photo data-cap="《年轻的心》总第 ' + is.no + ' 期封面"><img src="' + webpOf(pic(is.cover)) + '" data-rel="' + webpOf(is.cover) + '" onerror="i38fb(this)" alt="第 ' + is.no + ' 期封面" loading="lazy"><b>封面</b></a>' +
+        (is.back || []).map(function (b, i) {
+          return '<a class="i38-cv" href="' + pic(b.src) + '" data-photo data-cap="' + esc(b.cap) + '"><img src="' + webpOf(pic(b.src)) + '" data-rel="' + webpOf(b.src) + '" onerror="i38fb(this)" alt="' + esc(b.cap) + '" loading="lazy"><b>' + esc((b.cap || "").split(" · ")[0]) + '</b></a>';
+        }).join("") + "</div>" +
+        '<p class="ad-tip" style="margin-top:10px">封面与封二、封三、封四为编辑部提供的样刊实拍，点击放大。</p>';
+    }
+
+    var mh = is.masthead;
+    var info = $("#issueInfo");
+    if (info) {
+      info.style.display = "block";
+      info.innerHTML = '<h2>刊头</h2><div class="org-list">' +
+        '<div class="org-item"><b>主办 / 编辑</b><span>' + esc(mh.sponsor) + " · " + esc(mh.editor) + "</span></div>" +
+        '<div class="org-item"><b>顾问</b><span>' + esc(mh.advisers.join("、")) + "</span></div>" +
+        '<div class="org-item"><b>社长 / 主编</b><span>社长 ' + esc(mh.chief) + "；主编 " + esc(mh.editorInChief) + "；副主编 " + esc(mh.deputy.join("、")) + "</span></div>" +
+        '<div class="org-item"><b>本期编委</b><span>' + esc(mh.board.join("、")) + "</span></div>" +
+        '<div class="org-item"><b>审定 / 准印</b><span>审定 ' + esc(mh.approve) + "；准印证号 " + esc(mh.license) + "；印 " + mh.copies + " 册；" + esc(mh.printer) + "</span></div>" +
+        '<div class="org-item"><b>通联</b><span>' + esc(mh.address) + " · 邮编 " + esc(mh.zip) + " · " + esc(mh.email) + "</span></div>" +
+        "</div>";
+    }
+
+    var flat = [];
+    (is.columns || []).forEach(function (c) {
+      (c.works || []).forEach(function (w) { flat.push({ c: c.name, t: w.t, a: w.a, p: w.p, x: w.x }); });
+    });
+    window.__i38 = flat;
+
+    var toc = $("#issueToc");
+    if (toc) {
+      var k = 0;
+      toc.innerHTML = '<div class="i38-tools"><span>共 ' + flat.length + ' 篇</span>' +
+        '<button type="button" class="btn btn-l sm" id="i38OpenAll">全部展开全文</button>' +
+        '<button type="button" class="btn btn-l sm" id="i38CloseAll">全部收起</button></div>' +
+        (is.columns || []).map(function (c) {
+          return '<section class="i38-col"><h3>' + esc(c.name) + '<em>责编 ' + esc(c.editor) + ' · ' + c.works.length + ' 篇</em></h3>' +
+            c.works.map(function (w) {
+              var i = k++;
+              return '<div class="i38-row" data-i="' + i + '">' +
+                '<div class="i38-t"><span class="i38-tt">' + esc(w.t) + "</span>" +
+                (w.x ? '<i class="i38-flag">全文</i>' : '<i class="i38-flag wait">待补</i>') + "</div>" +
+                '<div class="i38-a">' + esc(w.a || "佚名") + '</div><div class="i38-p">P' + w.p + "</div>" +
+                '<div class="i38-body" hidden></div></div>';
+            }).join("") + "</section>";
+        }).join("");
+      toc.addEventListener("click", function (e) {
+        var row = e.target.closest(".i38-row");
+        if (!row) return;
+        var i = +row.getAttribute("data-i");
+        var box = row.querySelector(".i38-body");
+        if (!box) return;
+        if (box.hidden) {
+          if (!box.innerHTML) {
+            var it = flat[i];
+            box.innerHTML = it.x
+              ? it.x.split(/\n+/).filter(Boolean).map(function (p2) { return "<p>" + esc(p2) + "</p>"; }).join("")
+              : '<p class="i38-wait">本篇入刊原稿未随样刊提供，全文待编辑部补录。</p>';
+          }
+          box.hidden = false;
+          row.classList.add("open");
+        } else {
+          box.hidden = true;
+          row.classList.remove("open");
+        }
+      });
+      on("#i38OpenAll", "click", function () {
+        $$(".i38-row").forEach(function (r) { if (r.querySelector(".i38-body").hidden) r.click(); });
+      });
+      on("#i38CloseAll", "click", function () {
+        $$(".i38-row").forEach(function (r) {
+          var b = r.querySelector(".i38-body");
+          if (b && !b.hidden) { b.hidden = true; r.classList.remove("open"); }
+        });
+      });
+    }
+
+    var ww = $("#issueWorksWrap");
+    if (ww) ww.style.display = "none";
+    var na = $("#issueNav");
+    if (na) {
+      na.innerHTML = '<a class="btn btn-l sm" href="journal.html">← 返回社刊</a>' +
+        '<a class="btn btn-l sm" href="works.html">作品库</a>' +
+        '<a class="btn btn-d sm" href="guide.html">投稿指南</a>';
+    }
+    bindLightbox();
+  }
+
   function renderJournal() {
     var j = D.journal;
     var intro = $("#journalIntro");
     if (intro) intro.textContent = j.intro;
     var box = $("#journalList");
-    if (!box) return;
-    box.innerHTML = j.issues.map(function (is, i) {
+    if (box) renderJournalList(box);
+    var box2 = $("#journalListOld");
+    if (!box2) return;
+    box2.innerHTML = (j.issues || []).map(function (is, i) {
       return '<div class="jissue rv d' + ((i % 4) + 1) + '">' +
         '<div class="jno"><span class="jno-n">第' + is.no + '期</span><span class="jno-d">' + esc(is.date) + " · " + esc(is.term) + "之卷</span></div>" +
         '<div class="jbody"><h3>' + esc(is.theme) + "</h3>" +
@@ -1760,6 +1916,7 @@ window.imgFB = function (img) {
 
   function initIssuePage() {
     var no = parseInt(new URLSearchParams(location.search).get("no"), 10);
+    if ((!no || no === 38) && window.XB_ISSUE38) { renderIssue38(window.XB_ISSUE38); return; }
     var idx = 0;
     (D.journal.issues || []).forEach(function (is, i) { if (is.no === no) idx = i; });
 
@@ -2208,6 +2365,17 @@ window.imgFB = function (img) {
       ((D.site.sections && D.site.sections.verified) || []).forEach(function (c) {
         idx.push({ type: "版块", title: c.name || c.title || "", sub: "社刊版块", text: c.note || c.desc || "", href: "sections.html" });
       });
+      if (window.XB_ISSUE38) {
+        (XB_ISSUE38.columns || []).forEach(function (c) {
+          (c.works || []).forEach(function (w) {
+            idx.push({
+              type: "社刊第38期", title: w.t,
+              sub: (w.a || "佚名") + " · " + c.name + " · P" + w.p,
+              text: (w.x || "").slice(0, 400), href: "issue.html?no=38"
+            });
+          });
+        });
+      }
       (window.XB_LIBRARY || []).forEach(function (b2) {
         idx.push({ type: "典籍", title: b2.t, sub: b2.a || "", text: b2.k || "", href: "library.html?q=" + encodeURIComponent(b2.t) });
       });
@@ -2620,7 +2788,7 @@ window.imgFB = function (img) {
       return '<div class="sec-card"><b>' + esc(x.name) + "</b><span>" + esc(x.note || "") + "</span></div>";
     }).join("");
     var note = $("#secNote");
-    if (note) note.textContent = (sec.source || "") + "；共 " + sec.total + " 个版块，尚有 " + sec.pending + " 个待补。";
+    if (note) note.textContent = (sec.source || "") + "；共 " + sec.total + " 个版块" + (sec.pending ? "，尚有 " + sec.pending + " 个待补。" : "，名称与责编已全部录入。");
   }
 
   function buildTOC() {
@@ -2692,7 +2860,7 @@ window.imgFB = function (img) {
       { t: "活动档案", d: "会议纪要与现场照片，全文可读", n: acts.length + " 场 · " + chars + " 字 · " + photos + " 图", h: "gallery.html" },
       { t: "人物志", d: "社长、主编、校领导与学生社干", n: (window.XB_PEOPLE || []).length + " 位", h: "about.html#people" },
       { t: "大事记", d: "从建校、创社到今天的完整脉络", n: "1960 → 2026", h: "timeline.html" },
-      { t: "社刊档案", d: "《年轻的心》的期数、版块与印量", n: "第 36 期 · 11 版块", h: "sections.html" },
+      { t: "社刊档案", d: "《年轻的心》的期数、版块与印量", n: "第 38 期 · 14 版块", h: "journal.html" },
       { t: "标签索引", d: "按体裁、年份、活动、作者交叉检索", n: "40 个标签", h: "tags.html" },
       { t: "光华杯征文", d: "清明缅怀——传承的力量", n: "1027 篇 → 90 篇", h: "contest.html" },
       { t: "投稿与指南", d: "怎么投稿、格式要求、往哪里交", n: "长期征稿", h: "guide.html" },

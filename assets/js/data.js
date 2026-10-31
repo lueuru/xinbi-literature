@@ -1400,6 +1400,19 @@ window.XB_DATA = {
 
 (function () {
   var D = window.XB_DATA;
+  if (!D.site.gallery) D.site.gallery = [];
+  D.site.gallery.unshift(
+    { src: "assets/photos/issue38/cover.jpg", cap: "《年轻的心》总第 38 期封面", note: "2026 年 2 月出版，印 2000 册" },
+    { src: "assets/photos/issue38/meeting.jpg", cap: "表彰总结暨新社员见面大会", note: "现场投影为高一 1 部社员名单（26101—26112 组）" }
+  );
+  if (D.site.timeline) {
+    D.site.timeline.push({ year: "2026.02", title: "《年轻的心》总第 38 期出版", desc: "98 页、14 个版块、印 2000 册，准印证号 (湘)F)Y20260016；社长李军、主编侯琼。" });
+    D.site.timeline.sort(function (a, b) { return String(a.year) < String(b.year) ? 1 : -1; });
+  }
+})();
+
+(function () {
+  var D = window.XB_DATA;
   D.site.schoolNews = [
     { date: "2026-10-17", title: "赛场问鼎展雄风，凝心聚力铸师魂", url: "https://mp.weixin.qq.com/s/PMuyOW-qXaQLPFIvsPoAEA", photos: [1, 2, 3] },
     { date: "2026-09-23", title: "岳阳县二中「校长有约」侧记", url: "https://mp.weixin.qq.com/s/NRhpw4YvXRO2yNjFssFilQ", photos: [1] },
@@ -1434,16 +1447,26 @@ window.XB_DATA = {
   var D = window.XB_DATA;
   D.site.sections = {
     verified: [
-      { name: "卷首", note: "每期开篇" },
-      { name: "校园风铃", note: "校园生活" },
-      { name: "璀璨星空", note: "社员作品" },
-      { name: "校友风采", note: "校友故事" },
-      { name: "共育心语", note: "家校共育" }
+      { name: "卷首语", note: "责编 李军", count: 1 },
+      { name: "发展领航", note: "责编 李军", count: 3 },
+      { name: "成长爱音", note: "责编 侯琼", count: 3 },
+      { name: "行者无疆", note: "责编 侯琼", count: 2 },
+      { name: "青衿试翼", note: "责编 余燕", count: 4 },
+      { name: "清明艾香", note: "责编 方辉、苏雪颖", count: 16 },
+      { name: "班级文萃", note: "责编 邹笑", count: 8 },
+      { name: "山河铭记", note: "责编 刘梅", count: 11 },
+      { name: "时代微光", note: "责编 任锦、方发贵", count: 15 },
+      { name: "铁血丹心", note: "责编 李乐", count: 5 },
+      { name: "心桥飞鸿", note: "责编 李军", count: 5 },
+      { name: "杏坛文韵", note: "责编 李乐", count: 8 },
+      { name: "烟火人间", note: "责编 余燕", count: 4 },
+      { name: "剧韵留声", note: "责编 李乐", count: 4 }
     ],
-    total: 11,
-    pending: 6,
-    source: "版块名称据《年轻的心》社刊介绍（社团年会记录）"
+    total: 14,
+    pending: 0,
+    source: "第 38 期《年轻的心》目录（2026 年 2 月，编辑部提供样刊与入刊原稿）"
   };
+
 })();
 
 (function () {

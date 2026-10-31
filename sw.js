@@ -1,5 +1,5 @@
 
-var CACHE = "xinbi-basic-v75";
+var CACHE = "xinbi-basic-v76";
 var SHELL = [
   "./",
   "./index.html",
@@ -34,6 +34,12 @@ var SHELL = [
   "./assets/js/data.js",
   "./assets/js/library.js",
   "./assets/js/libdaily.js",
+  "./assets/js/issue38.js",
+  "./assets/photos/issue38/cover.webp",
+  "./assets/photos/issue38/back2-1.webp",
+  "./assets/photos/issue38/back3-1.webp",
+  "./assets/photos/issue38/back4.webp",
+  "./assets/icons/emblem-512.png",
   "./assets/js/config.js",
   "./assets/js/app.js",
   "./assets/js/cloud.js",
