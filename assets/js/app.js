@@ -2460,7 +2460,7 @@ window.imgFB = function (img) {
           });
         });
       }
-      (window.XB_LIBRARY || []).forEach(function (b2) {
+      (window.XB_LIBINDEX || window.XB_LIBRARY || []).forEach(function (b2) {
         idx.push({ type: "典籍", title: b2.t, sub: b2.a || "", text: b2.k || "", href: "library.html?q=" + encodeURIComponent(b2.t) });
       });
     }
@@ -2953,7 +2953,7 @@ window.imgFB = function (img) {
       { t: "光华杯征文", d: "清明缅怀——传承的力量", n: "1027 篇 → 90 篇", h: "contest.html" },
       { t: "投稿与指南", d: "怎么投稿、格式要求、往哪里交", n: "长期征稿", h: "guide.html" },
       { t: "加入我们", d: "网上招新：流程、条件与在线申请表", n: "常年招新", h: "join.html" },
-      { t: "藏书阁", d: "唐诗宋词、诗经、古文观止等公版典籍在线阅读", n: (window.XB_LIBRARY ? XB_LIBRARY.length : 2700) + "+ 篇", h: "library.html" }
+      { t: "藏书阁", d: "唐诗宋词、诗经、古文观止等公版典籍在线阅读", n: ((window.XB_LIBRARY || window.XB_LIBINDEX) ? (window.XB_LIBRARY || window.XB_LIBINDEX).length : 2700) + "+ 篇", h: "library.html" }
     ];
     box.innerHTML = cards.map(function (c) {
       return '<a class="navcard" href="' + c.h + '"><b>' + esc(c.t) + "</b><span>" + esc(c.d) + "</span><em>" + esc(c.n) + "</em></a>";
