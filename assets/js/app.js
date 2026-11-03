@@ -30,12 +30,13 @@ window.imgFB = function (img) {
       (c.works || []).forEach(function (w) {
         if (!w.x) return;
         var paras = w.x.split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean);
+        var cls = (D.site.authorClass || {})[w.a];
         out.push({
           id: "i38-" + (out.length + 1),
           title: w.t,
           author: w.a || "佚名",
           grade: "",
-          class_name: "",
+          class_name: cls ? cls.c : "",
           category: CAT[c.name] || "prose",
           excerpt: (paras[0] || "").slice(0, 64) + "…",
           content: paras,
@@ -1134,7 +1135,17 @@ window.imgFB = function (img) {
         }).join("") + "</ul>" +
         '<a class="btn btn-l sm" href="issue.html?no=38">在线阅读本期 →</a></div></div>';
     }
-    html += '<div class="org-item"><b>第 37 期及以前</b><span>目录与刊头待编辑部逐期提供样刊后补齐（现仅在「大事记」与「关于我们」中留有零散记载）。</span></div>';
+    (D.journal.issues || []).forEach(function (pi) {
+      html += '<div class="jissue rv on" style="border-left:4px solid var(--line-2)">' +
+        '<div class="jno"><span class="jno-n">总第 ' + pi.no + ' 期</span><span class="jno-d">' + esc(pi.date) + '</span></div>' +
+        '<div class="jbody"><h3>《年轻的心》第 ' + pi.no + ' 期</h3>' +
+        '<p style="color:var(--ink-3);font-size:.86rem;margin:0 0 10px">封面实拍 · 准印证号 ' + esc(pi.license || "待补") + ' · 封面要目 ' + (pi.pieces || []).length + ' 条</p>' +
+        '<ul class="jpieces">' + (pi.pieces || []).map(function (x) {
+          return '<li><span class="jp-t">' + esc(x.title) + '</span><span class="jp-m">' + esc(x.type || "") + '</span><span class="jp-p">' + esc(x.page || "页码待补") + '</span></li>';
+        }).join("") + '</ul>' +
+        '<a class="btn btn-l sm" href="issue.html?no=' + pi.no + '">查看本期 →</a></div></div>';
+    });
+    html += '<div class="org-item"><b>第 35 期及以前</b><span>目录与刊头待编辑部逐期提供样刊后补齐（现仅在「大事记」与「关于我们」中留有零散记载）。</span></div>';
     box.innerHTML = html;
   }
 
@@ -2231,6 +2242,7 @@ window.imgFB = function (img) {
   }
 
   function issueCover(is, i) {
+    if (is.cover) return '<img src="' + pic(is.cover) + '" alt="第 ' + esc(is.no) + ' 期封面" loading="lazy" onerror="this.style.display=\'none\'">';
     var c = ISSUE_HUES[i % ISSUE_HUES.length];
     var theme = String(is.theme || "");
     return '<svg viewBox="0 0 300 400" role="img" aria-label="第' + esc(is.no) + "期 " + esc(theme) + '">' +

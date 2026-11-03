@@ -2781,3 +2781,15 @@ mark { background: rgba(217,164,65,.45); color: inherit; border-radius: 2px; pad
 .wkqr h3{color:var(--red);margin:0 0 4px;font-size:1.05rem}
 .wkqr img,.wkqr canvas{border:1px solid var(--line);border-radius:8px;background:#fff}
 body.dark .issue-banner{background:linear-gradient(100deg,rgba(184,150,74,.14),rgba(139,58,58,.10))}
+
+/* v8.3: charter page */
+.ch-toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.ch-toc a{font-size:.86rem;color:var(--red-deep);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:4px 12px;background:var(--card);transition:border-color .2s,background .2s}
+.ch-toc a:hover{border-color:var(--gold);background:var(--gold-soft)}
+.ch-body{margin-top:6px}
+.ch-art{font-size:.94rem;line-height:1.9;color:var(--ink-2);margin:0 0 .7em;padding-left:76px;position:relative;text-indent:0}
+.ch-no{position:absolute;left:0;top:0;color:var(--red);font-weight:700;font-size:.86rem;letter-spacing:.02em}
+.ch-idx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px 18px}
+.ch-idx{display:flex;justify-content:space-between;gap:10px;font-size:.86rem;color:var(--ink-2);border-bottom:1px dashed var(--line);padding:5px 0}
+.ch-idx b{color:var(--red-deep);font-weight:600}
+@media (max-width:640px){.ch-art{padding-left:0}.ch-no{position:static;display:block;margin-bottom:2px}}
